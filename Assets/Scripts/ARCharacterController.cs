@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
+[RequireComponent(typeof(Rigidbody))]
 public class ARCharacterController : MonoBehaviour
 {
     [Header("References")]
@@ -23,9 +24,9 @@ public class ARCharacterController : MonoBehaviour
     public float moveSpeed = 1.5f;
     public float grappleSpeed = 3f;
     public float stopDistance = 0.05f;
-    public float rotationSpeed = 5f;
     public float ropeTension = 10f;
     public float ropeDamping = 5f;
+    public float grappleHoldTime = 3f; // seconds to stay latched
 
     [Header("UI Colors")]
     public Color validTargetColor = Color.green;
@@ -39,9 +40,12 @@ public class ARCharacterController : MonoBehaviour
     private Vector3 ropeVelocity = Vector3.zero;
     private Vector3 currentRopeEnd;
     private GameObject currentProjectile;
+    private Rigidbody rb;
 
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
+
         moveButton.onClick.AddListener(OnMoveButtonPressed);
         grappleButton.onClick.AddListener(OnGrappleButtonPressed);
 
@@ -73,7 +77,7 @@ public class ARCharacterController : MonoBehaviour
             bool isHorizontal = Vector3.Dot(hit.normal, Vector3.up) > 0.8f;
             bool isVertical = Mathf.Abs(Vector3.Dot(hit.normal, Vector3.up)) < 0.3f;
 
-            // Update move target
+            // Horizontal
             if (isHorizontal)
             {
                 moveTargetIndicator.SetActive(true);
@@ -86,7 +90,7 @@ public class ARCharacterController : MonoBehaviour
                 moveButton.interactable = false;
             }
 
-            // Update grapple target
+            // Vertical
             if (isVertical)
             {
                 grappleTargetIndicator.SetActive(true);
@@ -99,14 +103,9 @@ public class ARCharacterController : MonoBehaviour
                 grappleButton.interactable = false;
             }
 
-            // Reticle color logic
+            // Reticle
             if (reticleUI != null)
-            {
-                if (isHorizontal || isVertical)
-                    reticleUI.color = validTargetColor;
-                else
-                    reticleUI.color = invalidTargetColor;
-            }
+                reticleUI.color = (isHorizontal || isVertical) ? validTargetColor : invalidTargetColor;
         }
         else
         {
@@ -124,7 +123,6 @@ public class ARCharacterController : MonoBehaviour
     void OnMoveButtonPressed()
     {
         if (!moveButton.interactable || isGrappling) return;
-
         moveTarget = moveTargetIndicator.transform.position;
         isMoving = true;
     }
@@ -133,18 +131,10 @@ public class ARCharacterController : MonoBehaviour
     void OnGrappleButtonPressed()
     {
         if (!grappleButton.interactable) return;
-
         if (!isGrappling && !isProjectileFlying)
         {
             grappleTarget = grappleTargetIndicator.transform.position;
             StartCoroutine(ShootGrappleProjectile());
-        }
-        else if (isGrappling)
-        {
-            // Release grapple
-            isGrappling = false;
-            if (grappleLine != null)
-                grappleLine.enabled = false;
         }
     }
 
@@ -153,13 +143,12 @@ public class ARCharacterController : MonoBehaviour
     {
         isProjectileFlying = true;
 
-        // Spawn projectile
         if (grappleProjectilePrefab)
         {
             currentProjectile = Instantiate(grappleProjectilePrefab, transform.position, Quaternion.identity);
         }
 
-        // Fly toward target
+        // Projectile flies toward target
         while (currentProjectile && Vector3.Distance(currentProjectile.transform.position, grappleTarget) > 0.1f)
         {
             currentProjectile.transform.position = Vector3.MoveTowards(
@@ -178,17 +167,49 @@ public class ARCharacterController : MonoBehaviour
             yield return null;
         }
 
-        // Snap to target
         if (currentProjectile)
             currentProjectile.transform.position = grappleTarget;
 
-        // Begin grapple pull
         isProjectileFlying = false;
         isGrappling = true;
         currentRopeEnd = transform.position;
+        rb.isKinematic = true; // freeze while grappling
+
+        StartCoroutine(GrappleDuration());
     }
 
-    // 🔹 Handle normal movement
+    // 🔹 Automatically stop grappling after hold time
+    IEnumerator GrappleDuration()
+    {
+        // Move to grapple point first
+        while (Vector3.Distance(transform.position, grappleTarget) > stopDistance)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, grappleTarget, grappleSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        // Hold position for a few seconds
+        yield return new WaitForSeconds(grappleHoldTime);
+
+        // Release and fall
+        EndGrapple();
+    }
+
+    // 🔹 End grappling
+    void EndGrapple()
+    {
+        isGrappling = false;
+        rb.isKinematic = false; // re-enable physics
+        ropeVelocity = Vector3.zero;
+
+        if (grappleLine != null)
+            grappleLine.enabled = false;
+
+        if (currentProjectile)
+            Destroy(currentProjectile);
+    }
+
+    // 🔹 Regular horizontal movement
     void HandleMovement()
     {
         if (!isMoving) return;
@@ -196,33 +217,15 @@ public class ARCharacterController : MonoBehaviour
         Vector3 direction = (moveTarget - transform.position).normalized;
         transform.position += direction * moveSpeed * Time.deltaTime;
 
-        // Face direction
-        if (direction.sqrMagnitude > 0.001f)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(direction, Vector3.up);
-            transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
-        }
-
         if (Vector3.Distance(transform.position, moveTarget) < stopDistance)
             isMoving = false;
     }
 
-    // 🔹 Handle grappling
+    // 🔹 Grapple rope simulation
     void HandleGrapple()
     {
         if (!isGrappling) return;
 
-        Vector3 direction = (grappleTarget - transform.position).normalized;
-        transform.position = Vector3.MoveTowards(transform.position, grappleTarget, grappleSpeed * Time.deltaTime);
-
-        // Face grapple direction
-        if (direction.sqrMagnitude > 0.001f)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(direction, Vector3.up);
-            transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
-        }
-
-        // Rope spring simulation
         if (grappleLine != null)
         {
             Vector3 displacement = grappleTarget - currentRopeEnd;

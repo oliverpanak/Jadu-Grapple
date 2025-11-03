@@ -9,12 +9,12 @@ public class ARCharacterController : MonoBehaviour
     public Camera arCamera;
     public Button moveButton;
     public Button grappleButton;
-    public LineRenderer grappleLine;
     public Image reticleUI;
 
-    [Header("Target Indicators")]
-    public GameObject moveTargetIndicator;
-    public GameObject grappleTargetIndicator;
+    [Header("Prefabs for Visuals")]
+    public GameObject moveTargetIndicatorPrefab;
+    public GameObject grappleTargetIndicatorPrefab;
+    public Material grappleLineMaterial;
 
     [Header("Grapple Projectile")]
     public GameObject grappleProjectilePrefab;
@@ -32,6 +32,11 @@ public class ARCharacterController : MonoBehaviour
     public Color validTargetColor = Color.green;
     public Color invalidTargetColor = Color.red;
 
+    // Runtime-instantiated visuals
+    private GameObject moveTargetIndicator;
+    private GameObject grappleTargetIndicator;
+    private LineRenderer grappleLine;
+
     private Vector3 moveTarget;
     private Vector3 grappleTarget;
     private bool isMoving = false;
@@ -47,17 +52,32 @@ public class ARCharacterController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
 
-        moveButton.onClick.AddListener(OnMoveButtonPressed);
-        grappleButton.onClick.AddListener(OnGrappleButtonPressed);
-
-        moveTargetIndicator.SetActive(false);
-        grappleTargetIndicator.SetActive(false);
-
-        if (grappleLine != null)
+        // 🔹 Instantiate movement indicators
+        if (moveTargetIndicatorPrefab)
         {
-            grappleLine.enabled = false;
-            grappleLine.positionCount = 2;
+            moveTargetIndicator = Instantiate(moveTargetIndicatorPrefab);
+            moveTargetIndicator.SetActive(false);
         }
+
+        if (grappleTargetIndicatorPrefab)
+        {
+            grappleTargetIndicator = Instantiate(grappleTargetIndicatorPrefab);
+            grappleTargetIndicator.SetActive(false);
+        }
+
+        // 🔹 Create line renderer dynamically
+        GameObject grappleLineObj = new GameObject("GrappleLine");
+        grappleLineObj.transform.parent = transform;
+        grappleLine = grappleLineObj.AddComponent<LineRenderer>();
+        grappleLine.positionCount = 2;
+        grappleLine.enabled = false;
+        grappleLine.widthMultiplier = 0.02f;
+        if (grappleLineMaterial != null)
+            grappleLine.material = grappleLineMaterial;
+
+        // 🔹 Hook up button listeners
+        if (moveButton != null) moveButton.onClick.AddListener(OnMoveButtonPressed);
+        if (grappleButton != null) grappleButton.onClick.AddListener(OnGrappleButtonPressed);
     }
 
     void Update()
@@ -69,7 +89,7 @@ public class ARCharacterController : MonoBehaviour
         HandleGrapple();
     }
 
-    // 🔹 Target indicators + UI state
+    // 🔹 Target Indicators + UI State
     void UpdateTargetIndicators()
     {
         Ray ray = new Ray(arCamera.transform.position, arCamera.transform.forward);
@@ -122,7 +142,6 @@ public class ARCharacterController : MonoBehaviour
     {
         if (!moveButton.interactable) return;
 
-        // Interrupt any current movement or grapple
         CancelCurrentGrapple();
         isProjectileFlying = false;
         isGrappling = false;
@@ -137,7 +156,6 @@ public class ARCharacterController : MonoBehaviour
     {
         if (!grappleButton.interactable) return;
 
-        // Interrupt any walk or existing grapple
         CancelCurrentGrapple();
         isMoving = false;
 
@@ -154,7 +172,6 @@ public class ARCharacterController : MonoBehaviour
         if (grappleProjectilePrefab)
             currentProjectile = Instantiate(grappleProjectilePrefab, transform.position, Quaternion.identity);
 
-        // Projectile flies toward target
         while (currentProjectile && Vector3.Distance(currentProjectile.transform.position, grappleTarget) > 0.1f)
         {
             currentProjectile.transform.position = Vector3.MoveTowards(
@@ -163,13 +180,7 @@ public class ARCharacterController : MonoBehaviour
                 projectileSpeed * Time.deltaTime
             );
 
-            if (grappleLine != null)
-            {
-                grappleLine.enabled = true;
-                grappleLine.SetPosition(0, transform.position);
-                grappleLine.SetPosition(1, currentProjectile.transform.position);
-            }
-
+            UpdateLineRenderer(currentProjectile.transform.position);
             yield return null;
         }
 
@@ -184,22 +195,21 @@ public class ARCharacterController : MonoBehaviour
         grappleRoutine = StartCoroutine(GrappleDuration());
     }
 
-    // 🔹 Hold grapple for a few seconds, then release
+    // 🔹 Grapple hold logic
     IEnumerator GrappleDuration()
     {
-        // Move toward grapple point
         while (Vector3.Distance(transform.position, grappleTarget) > stopDistance)
         {
             transform.position = Vector3.MoveTowards(transform.position, grappleTarget, grappleSpeed * Time.deltaTime);
+            UpdateLineRenderer(grappleTarget);
             yield return null;
         }
 
-        // Hold for a few seconds before letting go
         yield return new WaitForSeconds(grappleHoldTime);
         EndGrapple();
     }
 
-    // 🔹 Cancel any ongoing grapple or projectile
+    // 🔹 Cancel any grapple
     void CancelCurrentGrapple()
     {
         if (grappleRoutine != null)
@@ -213,7 +223,6 @@ public class ARCharacterController : MonoBehaviour
 
         rb.isKinematic = false;
         ropeVelocity = Vector3.zero;
-
         isGrappling = false;
         isProjectileFlying = false;
     }
@@ -232,7 +241,7 @@ public class ARCharacterController : MonoBehaviour
             Destroy(currentProjectile);
     }
 
-    // 🔹 Horizontal movement logic
+    // 🔹 Horizontal movement
     void HandleMovement()
     {
         if (!isMoving) return;
@@ -244,21 +253,26 @@ public class ARCharacterController : MonoBehaviour
             isMoving = false;
     }
 
-    // 🔹 Grapple rope simulation
+    // 🔹 Grapple rope visuals
     void HandleGrapple()
     {
         if (!isGrappling) return;
 
-        if (grappleLine != null)
-        {
-            Vector3 displacement = grappleTarget - currentRopeEnd;
-            Vector3 springForce = displacement * ropeTension;
-            ropeVelocity += springForce * Time.deltaTime;
-            ropeVelocity *= Mathf.Exp(-ropeDamping * Time.deltaTime);
-            currentRopeEnd += ropeVelocity * Time.deltaTime;
+        Vector3 displacement = grappleTarget - currentRopeEnd;
+        Vector3 springForce = displacement * ropeTension;
+        ropeVelocity += springForce * Time.deltaTime;
+        ropeVelocity *= Mathf.Exp(-ropeDamping * Time.deltaTime);
+        currentRopeEnd += ropeVelocity * Time.deltaTime;
 
-            grappleLine.SetPosition(0, transform.position);
-            grappleLine.SetPosition(1, currentRopeEnd);
-        }
+        UpdateLineRenderer(currentRopeEnd);
+    }
+
+    void UpdateLineRenderer(Vector3 ropeEnd)
+    {
+        if (grappleLine == null) return;
+
+        grappleLine.enabled = true;
+        grappleLine.SetPosition(0, transform.position);
+        grappleLine.SetPosition(1, ropeEnd);
     }
 }

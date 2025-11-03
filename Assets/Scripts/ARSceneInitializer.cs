@@ -1,59 +1,48 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR.ARFoundation;
-using UnityEngine.XR.ARSubsystems;
-using System.Collections.Generic;
+using UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets;
 
-[RequireComponent(typeof(ARRaycastManager))]
 public class ARSceneInitializer : MonoBehaviour
 {
     [Header("References")]
     public Camera arCamera;
-    public ARCharacterController characterController;
 
     [Header("Prefabs")]
-    public GameObject characterPrefab;
+    public GameObject characterSetupPrefab;
     public GameObject environmentPrefab;
 
     [Header("UI Elements")]
     public Button placeButton;
-    public GameObject moveButton;
-    public GameObject grappleButton;
 
     [Header("Placement Cursor")]
     public GameObject placementCursorPrefab;
     public Color validPlacementColor = Color.green;
     public Color invalidPlacementColor = Color.red;
+    public float maxPlacementDistance = 5f;
     public float placementYOffset = 0.01f;
 
-    private ARRaycastManager raycastManager;
-    private Pose placementPose;
-    private bool placementPoseIsValid = false;
     private GameObject placementCursor;
     private Renderer cursorRenderer;
+    private bool validPlacement = false;
+    private Vector3 placementPosition;
 
-    private GameObject spawnedCharacter;
+    private GameObject spawnedCharacterSetup;
     private GameObject spawnedEnvironment;
-
-    static List<ARRaycastHit> hits = new List<ARRaycastHit>();
-
-    void Awake()
-    {
-        raycastManager = GetComponent<ARRaycastManager>();
-    }
 
     void Start()
     {
-        // Instantiate the placement cursor
-        placementCursor = Instantiate(placementCursorPrefab);
-        placementCursor.SetActive(false);
-        cursorRenderer = placementCursor.GetComponentInChildren<Renderer>();
+        // 🔹 Create placement cursor
+        if (placementCursorPrefab != null)
+        {
+            placementCursor = Instantiate(placementCursorPrefab);
+            placementCursor.SetActive(false);
 
-        // Disable move/grapple buttons until placement is complete
-        if (moveButton != null) moveButton.SetActive(false);
-        if (grappleButton != null) grappleButton.SetActive(false);
+            cursorRenderer = placementCursor.GetComponentInChildren<Renderer>();
+            if (cursorRenderer != null)
+                cursorRenderer.material.color = invalidPlacementColor;
+        }
 
-        // Setup the Place button
+        // 🔹 Setup Place button
         if (placeButton != null)
         {
             placeButton.interactable = false;
@@ -63,92 +52,68 @@ public class ARSceneInitializer : MonoBehaviour
 
     void Update()
     {
-        UpdatePlacementPose();
         UpdatePlacementCursor();
     }
 
-    // 🔹 Update plane raycast and find valid placement pose
-    void UpdatePlacementPose()
-    {
-        var screenCenter = arCamera.ViewportToScreenPoint(new Vector3(0.5f, 0.5f));
-        if (raycastManager.Raycast(screenCenter, hits, TrackableType.PlaneWithinPolygon))
-        {
-            placementPoseIsValid = true;
-            placementPose = hits[0].pose;
-
-            // Optional: rotate placement to face the camera
-            Vector3 cameraForward = arCamera.transform.forward;
-            Vector3 cameraBearing = new Vector3(cameraForward.x, 0, cameraForward.z).normalized;
-            placementPose.rotation = Quaternion.LookRotation(cameraBearing);
-        }
-        else
-        {
-            placementPoseIsValid = false;
-        }
-    }
-
-    // 🔹 Update cursor visual + button state
+    // 🔹 Update placement cursor and validity
     void UpdatePlacementCursor()
     {
-        if (placementPoseIsValid)
+        Ray ray = new Ray(arCamera.transform.position, arCamera.transform.forward);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, maxPlacementDistance))
         {
-            placementCursor.SetActive(true);
-            placementCursor.transform.SetPositionAndRotation(
-                placementPose.position + Vector3.up * placementYOffset,
-                placementPose.rotation
-            );
+            bool isHorizontalSurface = Vector3.Dot(hit.normal, Vector3.up) > 0.8f;
 
-            if (cursorRenderer != null)
-                cursorRenderer.material.color = validPlacementColor;
+            if (isHorizontalSurface)
+            {
+                placementPosition = hit.point + Vector3.up * placementYOffset;
+                placementCursor.SetActive(true);
+                placementCursor.transform.position = placementPosition;
+                placementCursor.transform.rotation = Quaternion.identity;
 
-            if (placeButton != null)
-                placeButton.interactable = true;
+                if (cursorRenderer != null)
+                    cursorRenderer.material.color = validPlacementColor;
+
+                validPlacement = true;
+                if (placeButton != null)
+                    placeButton.interactable = true;
+                return;
+            }
         }
-        else
-        {
+
+        // If no valid surface hit
+        validPlacement = false;
+        if (placementCursor != null)
             placementCursor.SetActive(false);
-            if (placeButton != null)
-                placeButton.interactable = false;
-        }
+
+        if (placeButton != null)
+            placeButton.interactable = false;
     }
 
-    // 🔹 Called when player presses the "Place" button
+    // 🔹 Called when the player presses the Place button
     void OnPlaceButtonPressed()
     {
-        if (!placementPoseIsValid) return;
+        if (!validPlacement) return;
 
-        Vector3 placementPosition = placementPose.position + Vector3.up * placementYOffset;
-
-        // Spawn environment prefab
+        // Spawn environment
         if (environmentPrefab != null && spawnedEnvironment == null)
         {
-            spawnedEnvironment = Instantiate(environmentPrefab, placementPosition, placementPose.rotation);
+            spawnedEnvironment = Instantiate(environmentPrefab, placementPosition, Quaternion.identity);
         }
+        
+        // Hide placement UI
+        if (placementCursor != null)
+            placementCursor.SetActive(false);
 
-        // Spawn character prefab
-        if (characterPrefab != null && spawnedCharacter == null)
-        {
-            spawnedCharacter = Instantiate(characterPrefab, placementPosition, placementPose.rotation);
-            characterController = spawnedCharacter.GetComponent<ARCharacterController>();
-        }
-
-        // Disable cursor and place button
-        placementCursor.SetActive(false);
         if (placeButton != null)
             placeButton.gameObject.SetActive(false);
 
-        // Enable gameplay buttons
-        if (moveButton != null)
+        // Spawn character
+        if (characterSetupPrefab != null && spawnedCharacterSetup == null)
         {
-            moveButton.SetActive(true);
-            characterController.moveButton = moveButton.GetComponent<Button>();
+            spawnedCharacterSetup = Instantiate(characterSetupPrefab, placementPosition, Quaternion.identity);
+            spawnedCharacterSetup.GetComponent<ARCharacterSetup>().characterController.arCamera = arCamera;
+            Destroy(this);
         }
-
-        if (grappleButton != null)
-        {
-            grappleButton.SetActive(true);
-            characterController.grappleButton = grappleButton.GetComponent<Button>();
-        }
-        characterController.arCamera = arCamera;
     }
 }

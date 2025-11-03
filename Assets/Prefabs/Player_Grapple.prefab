@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7074055685226010161}
   - component: {fileID: 1058875247427906160}
   m_Layer: 0
-  m_Name: Player
+  m_Name: Player_Grapple
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -50,10 +50,10 @@ MonoBehaviour:
   arCamera: {fileID: 0}
   moveButton: {fileID: 0}
   grappleButton: {fileID: 0}
-  grappleLine: {fileID: 0}
   reticleUI: {fileID: 0}
-  moveTargetIndicator: {fileID: 0}
-  grappleTargetIndicator: {fileID: 0}
+  moveTargetIndicatorPrefab: {fileID: 1190876349578038756, guid: 82c161cb29f8f4694b2554403cc1cb92, type: 3}
+  grappleTargetIndicatorPrefab: {fileID: 1888791335923583402, guid: a5f5a8ebf829e4521851b335582d326b, type: 3}
+  grappleLineMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   grappleProjectilePrefab: {fileID: 4388320596171149384, guid: e5a4511de913e439faf996a0418b3e40, type: 3}
   projectileSpeed: 10
   moveSpeed: 1.5

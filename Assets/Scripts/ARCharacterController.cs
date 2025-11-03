@@ -17,7 +17,7 @@ public class ARCharacterController : MonoBehaviour
     public GameObject grappleTargetIndicator;
 
     [Header("Grapple Projectile")]
-    public GameObject grappleProjectilePrefab; // small hook prefab
+    public GameObject grappleProjectilePrefab;
     public float projectileSpeed = 10f;
 
     [Header("Movement Settings")]
@@ -26,7 +26,7 @@ public class ARCharacterController : MonoBehaviour
     public float stopDistance = 0.05f;
     public float ropeTension = 10f;
     public float ropeDamping = 5f;
-    public float grappleHoldTime = 3f; // seconds to stay latched
+    public float grappleHoldTime = 3f;
 
     [Header("UI Colors")]
     public Color validTargetColor = Color.green;
@@ -41,6 +41,7 @@ public class ARCharacterController : MonoBehaviour
     private Vector3 currentRopeEnd;
     private GameObject currentProjectile;
     private Rigidbody rb;
+    private Coroutine grappleRoutine;
 
     void Start()
     {
@@ -61,14 +62,14 @@ public class ARCharacterController : MonoBehaviour
 
     void Update()
     {
-        if (!isMoving && !isGrappling && !isProjectileFlying)
+        if (!isProjectileFlying)
             UpdateTargetIndicators();
 
         HandleMovement();
         HandleGrapple();
     }
 
-    // 🔹 Update target indicators and button states
+    // 🔹 Target indicators + UI state
     void UpdateTargetIndicators()
     {
         Ray ray = new Ray(arCamera.transform.position, arCamera.transform.forward);
@@ -77,7 +78,6 @@ public class ARCharacterController : MonoBehaviour
             bool isHorizontal = Vector3.Dot(hit.normal, Vector3.up) > 0.8f;
             bool isVertical = Mathf.Abs(Vector3.Dot(hit.normal, Vector3.up)) < 0.3f;
 
-            // Horizontal
             if (isHorizontal)
             {
                 moveTargetIndicator.SetActive(true);
@@ -90,7 +90,6 @@ public class ARCharacterController : MonoBehaviour
                 moveButton.interactable = false;
             }
 
-            // Vertical
             if (isVertical)
             {
                 grappleTargetIndicator.SetActive(true);
@@ -103,7 +102,6 @@ public class ARCharacterController : MonoBehaviour
                 grappleButton.interactable = false;
             }
 
-            // Reticle
             if (reticleUI != null)
                 reticleUI.color = (isHorizontal || isVertical) ? validTargetColor : invalidTargetColor;
         }
@@ -122,31 +120,39 @@ public class ARCharacterController : MonoBehaviour
     // 🔹 Move button pressed
     void OnMoveButtonPressed()
     {
-        if (!moveButton.interactable || isGrappling) return;
+        if (!moveButton.interactable) return;
+
+        // Interrupt any current movement or grapple
+        CancelCurrentGrapple();
+        isProjectileFlying = false;
+        isGrappling = false;
+
         moveTarget = moveTargetIndicator.transform.position;
         isMoving = true;
+        rb.isKinematic = false;
     }
 
     // 🔹 Grapple button pressed
     void OnGrappleButtonPressed()
     {
         if (!grappleButton.interactable) return;
-        if (!isGrappling && !isProjectileFlying)
-        {
-            grappleTarget = grappleTargetIndicator.transform.position;
-            StartCoroutine(ShootGrappleProjectile());
-        }
+
+        // Interrupt any walk or existing grapple
+        CancelCurrentGrapple();
+        isMoving = false;
+
+        grappleTarget = grappleTargetIndicator.transform.position;
+        grappleRoutine = StartCoroutine(ShootGrappleProjectile());
     }
 
     // 🔹 Launch the grapple projectile
     IEnumerator ShootGrappleProjectile()
     {
         isProjectileFlying = true;
+        isGrappling = false;
 
         if (grappleProjectilePrefab)
-        {
             currentProjectile = Instantiate(grappleProjectilePrefab, transform.position, Quaternion.identity);
-        }
 
         // Projectile flies toward target
         while (currentProjectile && Vector3.Distance(currentProjectile.transform.position, grappleTarget) > 0.1f)
@@ -173,33 +179,50 @@ public class ARCharacterController : MonoBehaviour
         isProjectileFlying = false;
         isGrappling = true;
         currentRopeEnd = transform.position;
-        rb.isKinematic = true; // freeze while grappling
+        rb.isKinematic = true;
 
-        StartCoroutine(GrappleDuration());
+        grappleRoutine = StartCoroutine(GrappleDuration());
     }
 
-    // 🔹 Automatically stop grappling after hold time
+    // 🔹 Hold grapple for a few seconds, then release
     IEnumerator GrappleDuration()
     {
-        // Move to grapple point first
+        // Move toward grapple point
         while (Vector3.Distance(transform.position, grappleTarget) > stopDistance)
         {
             transform.position = Vector3.MoveTowards(transform.position, grappleTarget, grappleSpeed * Time.deltaTime);
             yield return null;
         }
 
-        // Hold position for a few seconds
+        // Hold for a few seconds before letting go
         yield return new WaitForSeconds(grappleHoldTime);
-
-        // Release and fall
         EndGrapple();
     }
 
-    // 🔹 End grappling
+    // 🔹 Cancel any ongoing grapple or projectile
+    void CancelCurrentGrapple()
+    {
+        if (grappleRoutine != null)
+            StopCoroutine(grappleRoutine);
+
+        if (currentProjectile)
+            Destroy(currentProjectile);
+
+        if (grappleLine != null)
+            grappleLine.enabled = false;
+
+        rb.isKinematic = false;
+        ropeVelocity = Vector3.zero;
+
+        isGrappling = false;
+        isProjectileFlying = false;
+    }
+
+    // 🔹 End grappling normally
     void EndGrapple()
     {
         isGrappling = false;
-        rb.isKinematic = false; // re-enable physics
+        rb.isKinematic = false;
         ropeVelocity = Vector3.zero;
 
         if (grappleLine != null)
@@ -209,7 +232,7 @@ public class ARCharacterController : MonoBehaviour
             Destroy(currentProjectile);
     }
 
-    // 🔹 Regular horizontal movement
+    // 🔹 Horizontal movement logic
     void HandleMovement()
     {
         if (!isMoving) return;

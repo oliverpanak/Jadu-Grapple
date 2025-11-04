@@ -8,6 +8,8 @@ public class SettingsMenuController : MonoBehaviour
     public ARCharacterController characterController;
 
     [Header("UI Elements")]
+    public GameObject settingsPanel;
+    
     public Slider grappleSpeedSlider;
     public TMP_Text grappleSpeedValueText;
 
@@ -20,13 +22,17 @@ public class SettingsMenuController : MonoBehaviour
     public Slider stopDistanceSlider;
     public TMP_Text stopDistanceValueText;
 
-    public Toggle momentumToggle;
+    public Toggle physicsToggle;
+    
+    public Toggle momentumAfterGrappleToggle;
 
     public Slider moveSpeedSlider;
     public TMP_Text moveSpeedValueText;
 
     private void Start()
     {
+        settingsPanel.SetActive(false);
+        
         // if (characterController == null)
         // {
         //     Debug.LogError("⚠️ SettingsMenuController: CharacterController reference not set!");
@@ -42,7 +48,8 @@ public class SettingsMenuController : MonoBehaviour
         if (holdTimeSlider) holdTimeSlider.onValueChanged.AddListener(OnHoldTimeChanged);
         if (stopDistanceSlider) stopDistanceSlider.onValueChanged.AddListener(OnStopDistanceChanged);
         if (moveSpeedSlider) moveSpeedSlider.onValueChanged.AddListener(OnMoveSpeedChanged);
-        if (momentumToggle) momentumToggle.onValueChanged.AddListener(OnMomentumToggled);
+        if (physicsToggle) physicsToggle.onValueChanged.AddListener(OnPhysicsToggled);
+        if (momentumAfterGrappleToggle) momentumAfterGrappleToggle.onValueChanged.AddListener(MomentumAfterGrappleToggled);
 
         // // Apply the initial settings to the character
         // ApplyAllSettings();
@@ -66,30 +73,6 @@ public class SettingsMenuController : MonoBehaviour
             moveSpeedValueText.text = $"{moveSpeedSlider.value:F1}";
     }
 
-    private void ApplyAllSettings()
-    {
-        if (!characterController) return;
-
-        if (grappleSpeedSlider)
-            characterController.grappleSpeed = grappleSpeedSlider.value;
-
-        if (holdTimeSlider)
-            characterController.grappleHoldTime = holdTimeSlider.value;
-
-        if (stopDistanceSlider)
-            characterController.stopDistance = stopDistanceSlider.value;
-
-        if (moveSpeedSlider)
-            characterController.moveSpeed = moveSpeedSlider.value;
-
-        if (momentumToggle)
-        {
-            Rigidbody rb = characterController.GetComponent<Rigidbody>();
-            if (rb != null)
-                rb.isKinematic = !momentumToggle.isOn;
-        }
-    }
-
     private void OnGrappleSpeedChanged(float value)
     {
         if (characterController)
@@ -101,6 +84,9 @@ public class SettingsMenuController : MonoBehaviour
 
     private void OnMaxDistanceChanged(float value)
     {
+        if (characterController)
+            characterController.maxGrappleDistance = value;
+        
         if (maxDistanceValueText)
             maxDistanceValueText.text = $"{value:F1}";
     }
@@ -132,10 +118,15 @@ public class SettingsMenuController : MonoBehaviour
             moveSpeedValueText.text = $"{value:F1}";
     }
 
-    private void OnMomentumToggled(bool isOn)
+    private void OnPhysicsToggled(bool isOn)
     {
-        Rigidbody rb = characterController.GetComponent<Rigidbody>();
-        if (rb != null)
-            rb.isKinematic = !isOn;
+        if (characterController)
+            characterController.usePhysicsMovement = isOn;
+    }
+    
+    private void MomentumAfterGrappleToggled(bool isOn)
+    {
+        if (characterController)
+            characterController.retainMomentumAfterGrapple = isOn;
     }
 }

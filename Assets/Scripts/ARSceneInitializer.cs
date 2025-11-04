@@ -13,6 +13,7 @@ public class ARSceneInitializer : MonoBehaviour
 
     [Header("UI Elements")]
     public Button placeButton;
+    public SettingsMenuController settingsMenuController;
 
     [Header("Placement Cursor")]
     public GameObject placementCursorPrefab;
@@ -113,6 +114,7 @@ public class ARSceneInitializer : MonoBehaviour
         {
             spawnedCharacterSetup = Instantiate(characterSetupPrefab, placementPosition, Quaternion.identity);
             spawnedCharacterSetup.GetComponent<ARCharacterSetup>().characterController.arCamera = arCamera;
+            settingsMenuController.characterController = spawnedCharacterSetup.GetComponent<ARCharacterSetup>().characterController;
             Destroy(this);
         }
     }

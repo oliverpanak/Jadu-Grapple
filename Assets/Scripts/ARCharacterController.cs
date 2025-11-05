@@ -37,12 +37,16 @@ public class ARCharacterController : MonoBehaviour
     [Header("Gravity Boots Settings")]
     public bool gravityBootsEnabled = false; // ✅ toggle for gravity boots
     public float gravityStrength = 9.81f;
-    private Vector3 currentGravity = Vector3.down;
-    private Vector3 targetUp = Vector3.up;
+    [Tooltip("How long the player can stay in the air before gravity resets to downwards.")]
+    public float gravityResetDelay = 1f; // ✅ New adjustable delay
 
     [Header("Jump Settings")]
     public float jumpForce = 5f;
-    private bool isGrounded = true;
+
+    // --- Internal State ---
+    private Vector3 customGravity = Vector3.down;
+    private bool isGrounded = false;
+    private float timeSinceLastCollision = 0f;
 
     [Header("Rope Settings")]
     public float ropeTension = 10f;
@@ -109,51 +113,88 @@ public class ARCharacterController : MonoBehaviour
 
         HandleMovement();
         HandleGrapple();
-        HandleGravityAndRotation();
+        HandleCustomGravity();
     }
 
-    // ---------------- Gravity Boots System ----------------
-
-    private void HandleGravityAndRotation()
+    // -----------------------------
+    // ✅ Gravity Boots System
+    // -----------------------------
+    void HandleCustomGravity()
     {
-        if (gravityBootsEnabled)
+        if (!gravityBootsEnabled)
         {
-            rb.AddForce(currentGravity * gravityStrength, ForceMode.Acceleration);
-
-            // Smoothly rotate to align "up" opposite to gravity direction
-            Quaternion targetRotation = Quaternion.FromToRotation(transform.up, -currentGravity) * transform.rotation;
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
-        }
-        else
-        {
-            // Standard downward gravity
+            // Normal gravity
             rb.AddForce(Vector3.down * gravityStrength, ForceMode.Acceleration);
+            return;
+        }
 
-            // Keep upright orientation
-            Quaternion upright = Quaternion.FromToRotation(transform.up, Vector3.up) * transform.rotation;
-            transform.rotation = Quaternion.Slerp(transform.rotation, upright, Time.deltaTime * 5f);
+        // Apply gravity in current custom direction
+        rb.AddForce(customGravity * gravityStrength, ForceMode.Acceleration);
+
+        // Track airborne time
+        if (!isGrounded)
+        {
+            timeSinceLastCollision += Time.deltaTime;
+
+            // ✅ Reset gravity if airborne longer than delay
+            if (timeSinceLastCollision > .1f)
+            {
+                ResetGravityToDown();
+            }
         }
     }
 
-    private void OnCollisionStay(Collision collision)
+    void OnCollisionEnter(Collision collision)
     {
         isGrounded = true;
-        if (!gravityBootsEnabled) return;
+        timeSinceLastCollision = 0f;
 
-        // Get average contact normal
-        Vector3 averageNormal = Vector3.zero;
-        foreach (ContactPoint contact in collision.contacts)
-            averageNormal += contact.normal;
-        averageNormal.Normalize();
+        if (!gravityBootsEnabled)
+            return;
 
-        // Switch gravity direction to be inverse of surface normal
-        currentGravity = -averageNormal;
-        targetUp = averageNormal;
+        // Get surface normal from contact
+        Vector3 surfaceNormal = collision.contacts[0].normal;
+
+        // Gravity points into the surface
+        customGravity = -surfaceNormal;
+
+        // Rotate character to align “up” with surface normal
+        Quaternion targetRot = Quaternion.FromToRotation(transform.up, surfaceNormal) * transform.rotation;
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 1);
     }
 
-    private void OnCollisionExit(Collision collision)
+    void OnCollisionExit(Collision collision)
     {
         isGrounded = false;
+    }
+
+    // -----------------------------
+    // ✅ Jump Logic
+    // -----------------------------
+    public void Jump()
+    {
+        if (rb == null) return;
+
+        // Jump opposite to current gravity
+        rb.AddForce(-customGravity.normalized * jumpForce, ForceMode.VelocityChange);
+
+        isGrounded = false;
+        timeSinceLastCollision = 0f;
+    }
+
+    // -----------------------------
+    // ✅ Gravity Reset
+    // -----------------------------
+    void ResetGravityToDown()
+    {
+        if (customGravity != Vector3.down)
+        {
+            customGravity = Vector3.down;
+
+            // Smoothly rotate upright
+            Quaternion targetRot = Quaternion.FromToRotation(transform.up, Vector3.up) * transform.rotation;
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 1);
+        }
     }
 
     // ---------------- Jump System ----------------
@@ -165,7 +206,7 @@ public class ARCharacterController : MonoBehaviour
         rb.isKinematic = false;
         isGrounded = false;
 
-        Vector3 jumpDir = gravityBootsEnabled ? -currentGravity.normalized : Vector3.up;
+        Vector3 jumpDir = gravityBootsEnabled ? -customGravity.normalized : Vector3.up;
         rb.AddForce(jumpDir * jumpForce, ForceMode.VelocityChange);
     }
 

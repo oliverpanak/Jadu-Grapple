@@ -9,6 +9,7 @@ public class ARCharacterController : MonoBehaviour
     public Camera arCamera;
     public Button moveButton;
     public Button grappleButton;
+    public Button jumpButton;
     public Image reticleUI;
 
     [Header("Prefabs for Visuals")]
@@ -26,12 +27,22 @@ public class ARCharacterController : MonoBehaviour
     public float stopDistance = 0.05f;
     public float grappleHoldTime = 3f;
     public float maxGrappleDistance = 20f;
-    public bool usePhysicsMovement = false; // ✅ physics toggle
-    public bool retainMomentumAfterGrapple = false; // ✅ new toggle
+    public bool usePhysicsMovement = false;
+    public bool retainMomentumAfterGrapple = false;
 
     [Header("Physics Movement Settings")]
     public float movementForce = 10f;
     public float maxVelocity = 2f;
+
+    [Header("Gravity Boots Settings")]
+    public bool gravityBootsEnabled = false; // ✅ toggle for gravity boots
+    public float gravityStrength = 9.81f;
+    private Vector3 currentGravity = Vector3.down;
+    private Vector3 targetUp = Vector3.up;
+
+    [Header("Jump Settings")]
+    public float jumpForce = 5f;
+    private bool isGrounded = true;
 
     [Header("Rope Settings")]
     public float ropeTension = 10f;
@@ -60,7 +71,9 @@ public class ARCharacterController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        rb.useGravity = false; // We control gravity manually
 
+        // Instantiate indicators
         if (moveTargetIndicatorPrefab)
         {
             moveTargetIndicator = Instantiate(moveTargetIndicatorPrefab);
@@ -73,6 +86,7 @@ public class ARCharacterController : MonoBehaviour
             grappleTargetIndicator.SetActive(false);
         }
 
+        // Create line renderer
         GameObject grappleLineObj = new GameObject("GrappleLine");
         grappleLineObj.transform.parent = transform;
         grappleLine = grappleLineObj.AddComponent<LineRenderer>();
@@ -82,8 +96,10 @@ public class ARCharacterController : MonoBehaviour
         if (grappleLineMaterial)
             grappleLine.material = grappleLineMaterial;
 
+        // Hook up UI buttons
         if (moveButton) moveButton.onClick.AddListener(OnMoveButtonPressed);
         if (grappleButton) grappleButton.onClick.AddListener(OnGrappleButtonPressed);
+        if (jumpButton) jumpButton.onClick.AddListener(OnJumpButtonPressed);
     }
 
     void Update()
@@ -93,9 +109,68 @@ public class ARCharacterController : MonoBehaviour
 
         HandleMovement();
         HandleGrapple();
+        HandleGravityAndRotation();
     }
 
-    // 🔹 Target indicators + validation
+    // ---------------- Gravity Boots System ----------------
+
+    private void HandleGravityAndRotation()
+    {
+        if (gravityBootsEnabled)
+        {
+            rb.AddForce(currentGravity * gravityStrength, ForceMode.Acceleration);
+
+            // Smoothly rotate to align "up" opposite to gravity direction
+            Quaternion targetRotation = Quaternion.FromToRotation(transform.up, -currentGravity) * transform.rotation;
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+        }
+        else
+        {
+            // Standard downward gravity
+            rb.AddForce(Vector3.down * gravityStrength, ForceMode.Acceleration);
+
+            // Keep upright orientation
+            Quaternion upright = Quaternion.FromToRotation(transform.up, Vector3.up) * transform.rotation;
+            transform.rotation = Quaternion.Slerp(transform.rotation, upright, Time.deltaTime * 5f);
+        }
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        if (!gravityBootsEnabled) return;
+
+        // Get average contact normal
+        Vector3 averageNormal = Vector3.zero;
+        foreach (ContactPoint contact in collision.contacts)
+            averageNormal += contact.normal;
+        averageNormal.Normalize();
+
+        // Switch gravity direction to be inverse of surface normal
+        currentGravity = -averageNormal;
+        targetUp = averageNormal;
+        isGrounded = true;
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        isGrounded = false;
+    }
+
+    // ---------------- Jump System ----------------
+
+    private void OnJumpButtonPressed()
+    {
+        if (!isGrounded) return; // Only jump if on surface
+
+        rb.isKinematic = false;
+        isGrounded = false;
+
+        Vector3 jumpDir = gravityBootsEnabled ? -currentGravity.normalized : Vector3.up;
+        rb.AddForce(jumpDir * jumpForce, ForceMode.VelocityChange);
+    }
+
+    // ---------------- Movement + Grappling ----------------
+
     void UpdateTargetIndicators()
     {
         Ray ray = new Ray(arCamera.transform.position, arCamera.transform.forward);
@@ -105,7 +180,7 @@ public class ARCharacterController : MonoBehaviour
             bool isVertical = Mathf.Abs(Vector3.Dot(hit.normal, Vector3.up)) < 0.3f;
             float distance = Vector3.Distance(transform.position, hit.point);
 
-            // --- Horizontal Move ---
+            // Move
             if (isHorizontal && distance <= maxGrappleDistance)
             {
                 moveTargetIndicator.SetActive(true);
@@ -118,7 +193,7 @@ public class ARCharacterController : MonoBehaviour
                 moveButton.interactable = false;
             }
 
-            // --- Grapple ---
+            // Grapple
             if (isVertical && distance <= maxGrappleDistance)
             {
                 grappleTargetIndicator.SetActive(true);
@@ -144,29 +219,22 @@ public class ARCharacterController : MonoBehaviour
         }
     }
 
-    // 🔹 Handle Move Button
     void OnMoveButtonPressed()
     {
         if (!moveButton.interactable) return;
 
         CancelCurrentGrapple();
-
-        isProjectileFlying = false;
-        isGrappling = false;
         isMoving = true;
-
         moveTarget = moveTargetIndicator.transform.position;
         rb.isKinematic = false;
     }
 
-    // 🔹 Handle Grapple Button
     void OnGrappleButtonPressed()
     {
         if (!grappleButton.interactable) return;
 
         CancelCurrentGrapple();
         isMoving = false;
-
         grappleTarget = grappleTargetIndicator.transform.position;
 
         float distance = Vector3.Distance(transform.position, grappleTarget);
@@ -212,27 +280,23 @@ public class ARCharacterController : MonoBehaviour
 
     IEnumerator GrappleDuration()
     {
-        Vector3 lastVelocity = Vector3.zero; // ✅ capture velocity for momentum
+        Vector3 lastVelocity = Vector3.zero;
 
         while (Vector3.Distance(transform.position, grappleTarget) > stopDistance)
         {
-            Vector3 previousPosition = transform.position;
+            Vector3 prevPos = transform.position;
             transform.position = Vector3.MoveTowards(transform.position, grappleTarget, grappleSpeed * Time.deltaTime);
+            lastVelocity = (transform.position - prevPos) / Time.deltaTime;
             UpdateLineRenderer(grappleTarget);
-
-            // track direction/speed
-            lastVelocity = (transform.position - previousPosition) / Time.deltaTime;
-
             yield return null;
         }
 
         yield return new WaitForSeconds(grappleHoldTime);
 
-        // ✅ apply momentum before ending grapple
         if (retainMomentumAfterGrapple && rb != null)
         {
             rb.isKinematic = false;
-            rb.linearVelocity = lastVelocity; // push player forward with last movement velocity
+            rb.linearVelocity = lastVelocity;
         }
 
         EndGrapple();
@@ -270,7 +334,6 @@ public class ARCharacterController : MonoBehaviour
             Destroy(currentProjectile);
     }
 
-    // 🔹 Handle Movement
     void HandleMovement()
     {
         if (!isMoving) return;
@@ -280,17 +343,13 @@ public class ARCharacterController : MonoBehaviour
 
         if (usePhysicsMovement)
         {
-            // ✅ Physics-driven mode
-            rb.isKinematic = false;
             rb.AddForce(direction * movementForce, ForceMode.Acceleration);
 
-            // Optional velocity limit
             if (rb.linearVelocity.magnitude > maxVelocity)
                 rb.linearVelocity = rb.linearVelocity.normalized * maxVelocity;
         }
         else
         {
-            // ✅ Direct positional mode
             transform.position += direction * moveSpeed * Time.deltaTime;
         }
 
@@ -302,7 +361,6 @@ public class ARCharacterController : MonoBehaviour
         }
     }
 
-    // 🔹 Handle Rope Physics Visual
     void HandleGrapple()
     {
         if (!isGrappling) return;

@@ -26,7 +26,7 @@ public class ARCharacterController : MonoBehaviour
     public float grappleSpeed = 3f;
     public float stopDistance = 0.05f;
     public float grappleHoldTime = 3f;
-    public float maxGrappleDistance = 20f;
+    public float maxGrappleDistance = 2000000f;
     public bool usePhysicsMovement = false;
     public bool retainMomentumAfterGrapple = false;
 
@@ -137,6 +137,7 @@ public class ARCharacterController : MonoBehaviour
 
     private void OnCollisionStay(Collision collision)
     {
+        isGrounded = true;
         if (!gravityBootsEnabled) return;
 
         // Get average contact normal
@@ -148,7 +149,6 @@ public class ARCharacterController : MonoBehaviour
         // Switch gravity direction to be inverse of surface normal
         currentGravity = -averageNormal;
         targetUp = averageNormal;
-        isGrounded = true;
     }
 
     private void OnCollisionExit(Collision collision)

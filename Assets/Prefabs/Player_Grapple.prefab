@@ -50,6 +50,7 @@ MonoBehaviour:
   arCamera: {fileID: 0}
   moveButton: {fileID: 0}
   grappleButton: {fileID: 0}
+  jumpButton: {fileID: 0}
   reticleUI: {fileID: 0}
   moveTargetIndicatorPrefab: {fileID: 1190876349578038756, guid: 82c161cb29f8f4694b2554403cc1cb92, type: 3}
   grappleTargetIndicatorPrefab: {fileID: 1888791335923583402, guid: a5f5a8ebf829e4521851b335582d326b, type: 3}
@@ -59,9 +60,17 @@ MonoBehaviour:
   moveSpeed: 1.5
   grappleSpeed: 3
   stopDistance: 0.05
-  ropeTension: 10
-  ropeDamping: 5
   grappleHoldTime: 3
+  maxGrappleDistance: 2000000
+  usePhysicsMovement: 0
+  retainMomentumAfterGrapple: 0
+  movementForce: 10
+  maxVelocity: 2
+  gravityBootsEnabled: 0
+  gravityStrength: 9.81
+  jumpForce: 5
+  ropeTension: 100
+  ropeDamping: 10
   validTargetColor: {r: 0, g: 1, b: 0, a: 1}
   invalidTargetColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!136 &7074055685226010161

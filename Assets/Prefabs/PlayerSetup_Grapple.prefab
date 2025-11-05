@@ -1023,21 +1023,9 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1178965551313543741}
     - target: {fileID: 4587980735234189682, guid: 43d77c57bfbbe483bb1cf12b758436ad, type: 3}
-      propertyPath: ropeDamping
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 4587980735234189682, guid: 43d77c57bfbbe483bb1cf12b758436ad, type: 3}
-      propertyPath: ropeTension
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 4587980735234189682, guid: 43d77c57bfbbe483bb1cf12b758436ad, type: 3}
       propertyPath: grappleButton
       value: 
       objectReference: {fileID: 8547149229766542625}
-    - target: {fileID: 4587980735234189682, guid: 43d77c57bfbbe483bb1cf12b758436ad, type: 3}
-      propertyPath: gravityBootsEnabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7527112102265594311, guid: 43d77c57bfbbe483bb1cf12b758436ad, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

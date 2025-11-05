@@ -137,7 +137,7 @@ public class ARCharacterController : MonoBehaviour
             timeSinceLastCollision += Time.deltaTime;
 
             // ✅ Reset gravity if airborne longer than delay
-            if (timeSinceLastCollision > .1f)
+            if (timeSinceLastCollision > gravityResetDelay)
             {
                 ResetGravityToDown();
             }
@@ -217,8 +217,8 @@ public class ARCharacterController : MonoBehaviour
         Ray ray = new Ray(arCamera.transform.position, arCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            bool isHorizontal = Vector3.Dot(hit.normal, Vector3.up) > 0.8f;
-            bool isVertical = Mathf.Abs(Vector3.Dot(hit.normal, Vector3.up)) < 0.3f;
+            bool isHorizontal = Vector3.Dot(hit.normal, Vector3.up) > 0.5f;
+            bool isVertical = Mathf.Abs(Vector3.Dot(hit.normal, Vector3.up)) < 0.49f;
             float distance = Vector3.Distance(transform.position, hit.point);
 
             // Move

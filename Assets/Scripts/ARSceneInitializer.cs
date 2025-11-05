@@ -1,8 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets;
-using System.Collections;
 
 public class ARSceneInitializer : MonoBehaviour
 {
@@ -56,11 +53,6 @@ public class ARSceneInitializer : MonoBehaviour
     void Update()
     {
         UpdatePlacementCursor();
-    }
-
-    public void ReloadScene()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     // 🔹 Update placement cursor and validity

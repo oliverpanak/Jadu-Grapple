@@ -176,7 +176,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Reload Scene
+  m_text: Main Menu
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4001,6 +4001,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   settingsPanel: {fileID: 1486645334}
+  lobbyScene: {fileID: 102900000, guid: 1a3056069f580466f9e9690565f9db10, type: 3}
   characterController: {fileID: 0}
   grappleSpeedSlider: {fileID: 1843987149}
   grappleSpeedValueText: {fileID: 594283784}
@@ -4295,9 +4296,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 796949849}
-        m_TargetAssemblyTypeName: ARSceneInitializer, Assembly-CSharp
-        m_MethodName: ReloadScene
+      - m_Target: {fileID: 704351045}
+        m_TargetAssemblyTypeName: SettingsMenuController, Assembly-CSharp
+        m_MethodName: LoadLobbyScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7239,7 +7240,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1780318897}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.48117894
+  m_Size: 0.39543122
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/LobbyScene.unity
+    guid: 1a3056069f580466f9e9690565f9db10
+  - enabled: 1
     path: Assets/Scenes/MovementGrappleScene.unity
     guid: b197f2b9965254b71bb3965f57807072
   m_configObjects:

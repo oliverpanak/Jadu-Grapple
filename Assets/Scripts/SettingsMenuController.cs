@@ -1,10 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor;
+using UnityEngine.SceneManagement;
 
 public class SettingsMenuController : MonoBehaviour
 {
     public GameObject settingsPanel;
+    
+    [Header("Scene References")]
+    public SceneAsset lobbyScene;
     
     [Header("Character Reference")]
     public ARCharacterController characterController;
@@ -42,6 +47,12 @@ public class SettingsMenuController : MonoBehaviour
     [Header("Momentum Toggle")]
     public Toggle kinematicToggle; // Enables/disables Rigidbody kinematic
 
+    public void LoadLobbyScene()
+    {
+        SceneManager.LoadScene(lobbyScene.name);
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
+    }
+    
     private void Start()
     {
         settingsPanel.SetActive(false);

@@ -68,7 +68,7 @@ MonoBehaviour:
   maxVelocity: 2
   gravityBootsEnabled: 0
   gravityStrength: 9.81
-  gravityResetDelay: 1
+  gravityResetDelay: 0.2
   jumpForce: 3
   ropeTension: 100
   ropeDamping: 10

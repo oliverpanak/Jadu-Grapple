@@ -68,7 +68,8 @@ MonoBehaviour:
   maxVelocity: 2
   gravityBootsEnabled: 0
   gravityStrength: 9.81
-  jumpForce: 5
+  gravityResetDelay: 1
+  jumpForce: 3
   ropeTension: 100
   ropeDamping: 10
   validTargetColor: {r: 0, g: 1, b: 0, a: 1}

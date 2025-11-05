@@ -1,15 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEditor;
 using UnityEngine.SceneManagement;
 
 public class SettingsMenuController : MonoBehaviour
 {
     public GameObject settingsPanel;
-    
-    [Header("Scene References")]
-    public SceneAsset lobbyScene;
     
     [Header("Character Reference")]
     public ARCharacterController characterController;
@@ -49,7 +45,7 @@ public class SettingsMenuController : MonoBehaviour
 
     public void LoadLobbyScene()
     {
-        SceneManager.LoadScene(lobbyScene.name);
+        SceneManager.LoadScene(0);
         SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
     }
     

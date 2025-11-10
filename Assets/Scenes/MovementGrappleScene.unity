@@ -1796,12 +1796,37 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2512387470528047719, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
       insertIndex: -1
       addedObject: {fileID: 796949849}
+    - targetCorrespondingSourceObject: {fileID: 2512387469002778309, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 331264288}
   m_SourcePrefab: {fileID: 100100000, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
+--- !u!1 &331264286 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2512387469002778309, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
+  m_PrefabInstance: {fileID: 331264285}
+  m_PrefabAsset: {fileID: 0}
 --- !u!20 &331264287 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 2512387469002778331, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
   m_PrefabInstance: {fileID: 331264285}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &331264288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 331264286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b15f82cc229284894964d2d30806969d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.ARFoundation::UnityEngine.XR.ARFoundation.AROcclusionManager
+  m_HumanSegmentationStencilMode: 0
+  m_HumanSegmentationDepthMode: 0
+  m_EnvironmentDepthMode: 3
+  m_EnvironmentDepthTemporalSmoothing: 1
+  m_OcclusionPreferenceMode: 0
 --- !u!1 &346207335
 GameObject:
   m_ObjectHideFlags: 0
@@ -4001,7 +4026,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   settingsPanel: {fileID: 1486645334}
-  lobbyScene: {fileID: 102900000, guid: 1a3056069f580466f9e9690565f9db10, type: 3}
   characterController: {fileID: 0}
   grappleSpeedSlider: {fileID: 1843987149}
   grappleSpeedValueText: {fileID: 594283784}
@@ -7240,7 +7264,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1780318897}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.39543122
+  m_Size: 0.48117894
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

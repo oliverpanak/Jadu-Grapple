@@ -177,7 +177,7 @@ Shader "Custom/ARKitCameraBackground"
                     float humanDistance = ARKIT_SAMPLE_TEXTURE2D(_HumanDepth, sampler_HumanDepth, i.texcoord).r;
 
                     // Convert the distance to depth.
-                    depthValue = ConvertDistanceToDepth(envDistance) - .0015f;
+                    depthValue = ConvertDistanceToDepth(humanDistance) - .0015f;
                 }
 #endif // ARKIT_HUMAN_SEGMENTATION_ENABLED
 

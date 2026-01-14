@@ -2293,8 +2293,8 @@ MonoBehaviour:
   followSpeed: 25
   panSpeed: 0.0025
   maxPanOffset: 0.4
-  throwForce: 2
-  portalWorldSwitcher: {fileID: 0}
+  throwForce: 5
+  portalWorldSwitcher: {fileID: 607351548}
   realWorldLayerName: StencilLayer1
   virtualWorldLayerName: StencilLayer2
 --- !u!1 &576017690
@@ -8110,7 +8110,7 @@ GameObject:
   - component: {fileID: 1916800332}
   - component: {fileID: 1916800334}
   - component: {fileID: 1916800333}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Player
   m_Icon: {fileID: 0}

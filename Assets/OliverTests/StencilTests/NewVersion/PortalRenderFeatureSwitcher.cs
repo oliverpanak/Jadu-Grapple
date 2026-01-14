@@ -20,7 +20,7 @@ public class PortalRenderFeatureSwitcher : MonoBehaviour
     [Range(0f, 1f)]
     public float lookDotThreshold = 0.4f;
 
-    private enum PlayerWorld
+    public enum PlayerWorld
     {
         InRealWorld,
         InVirtualWorld
@@ -28,6 +28,8 @@ public class PortalRenderFeatureSwitcher : MonoBehaviour
 
     [SerializeField]
     private PlayerWorld currentWorld = PlayerWorld.InRealWorld;
+    public PlayerWorld CurrentWorld => currentWorld;
+
 
     // Editor safety
     private bool initRealPortal, initVirtualPortal;

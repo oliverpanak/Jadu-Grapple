@@ -18,6 +18,11 @@ public class ARGrabAndThrow : MonoBehaviour
     [Header("Throw")]
     public float throwForce = 2.0f;
 
+    [Header("World Filtering")]
+    public PortalRenderFeatureSwitcher portalWorldSwitcher;
+    public string realWorldLayerName = "StencilLayer1";
+    public string virtualWorldLayerName = "StencilLayer2";
+
     private Camera cam;
     private InteractableObject heldObject;
 
@@ -25,9 +30,15 @@ public class ARGrabAndThrow : MonoBehaviour
     private Vector2 lastPointerPos;
     private Vector2 panOffset;
 
+    private int realWorldLayer;
+    private int virtualWorldLayer;
+
     private void Awake()
     {
         cam = GetComponent<Camera>();
+
+        realWorldLayer = LayerMask.NameToLayer(realWorldLayerName);
+        virtualWorldLayer = LayerMask.NameToLayer(virtualWorldLayerName);
     }
 
     private void Update()
@@ -57,8 +68,8 @@ public class ARGrabAndThrow : MonoBehaviour
         if (Mouse.current != null)
             return Mouse.current.leftButton.wasPressedThisFrame;
 
-        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-            return true;
+        if (Touchscreen.current != null)
+            return Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
 
         return false;
     }
@@ -79,8 +90,8 @@ public class ARGrabAndThrow : MonoBehaviour
         if (Mouse.current != null)
             return Mouse.current.leftButton.wasReleasedThisFrame;
 
-        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasReleasedThisFrame)
-            return true;
+        if (Touchscreen.current != null)
+            return Touchscreen.current.primaryTouch.press.wasReleasedThisFrame;
 
         return false;
     }
@@ -97,7 +108,7 @@ public class ARGrabAndThrow : MonoBehaviour
     }
 
     // =========================
-    // GRAB
+    // GRAB LOGIC
     // =========================
 
     private void TryGrab()
@@ -118,11 +129,34 @@ public class ARGrabAndThrow : MonoBehaviour
         if (!interactable || interactable.isHeld)
             return;
 
-        // Optional: block grab mid-portal
+        // 🚫 BLOCK IF NOT IN PLAYER'S WORLD
+        if (!IsObjectInPlayerWorld(interactable.gameObject))
+            return;
+
+        // Optional: block mid-portal
         if (interactable.GetComponent<PortalObject>()?.isTransferring == true)
             return;
 
         Grab(interactable);
+    }
+
+    private bool IsObjectInPlayerWorld(GameObject obj)
+    {
+        if (!portalWorldSwitcher)
+            return true; // fail-safe
+
+        int objLayer = obj.layer;
+
+        switch (portalWorldSwitcher.CurrentWorld)
+        {
+            case PortalRenderFeatureSwitcher.PlayerWorld.InRealWorld:
+                return objLayer == realWorldLayer;
+
+            case PortalRenderFeatureSwitcher.PlayerWorld.InVirtualWorld:
+                return objLayer == virtualWorldLayer;
+        }
+
+        return false;
     }
 
     private void Grab(InteractableObject obj)

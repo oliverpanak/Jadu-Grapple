@@ -8,7 +8,7 @@ public class PortalTrigger : MonoBehaviour
     {
         if (!other.CompareTag("Player"))
             return;
-
+        Debug.Log("Enter");
         switcher.BeginPortalCrossing();
     }
 
@@ -16,7 +16,7 @@ public class PortalTrigger : MonoBehaviour
     {
         if (!other.CompareTag("Player"))
             return;
-
+        Debug.Log("Exit");
         switcher.CompletePortalCrossing();
     }
 }

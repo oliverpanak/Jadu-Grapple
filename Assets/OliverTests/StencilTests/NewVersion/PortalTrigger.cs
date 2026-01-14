@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class PortalTrigger : MonoBehaviour
 {
-    public PortalRenderFeatureSwitcher renderSwitcher;
+    public PortalRenderFeatureSwitcher switcher;
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player"))
             return;
 
-        renderSwitcher.EnterPortal();
+        switcher.BeginPortalCrossing();
     }
 
     private void OnTriggerExit(Collider other)
@@ -17,6 +17,6 @@ public class PortalTrigger : MonoBehaviour
         if (!other.CompareTag("Player"))
             return;
 
-        renderSwitcher.ExitPortal();
+        switcher.CompletePortalCrossing();
     }
 }

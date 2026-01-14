@@ -52,11 +52,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
-  m_Name: StencilToOtherWorld2
+  m_Name: InVirtualWorldPortalStencil
   m_EditorClassIdentifier: 
   m_Active: 0
   settings:
-    passTag: StencilToOtherWorld2
+    passTag: InVirtualWorldPortalStencil
     Event: 300
     filterSettings:
       RenderQueueType: 0
@@ -133,17 +133,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
-  m_Name: StencilToThisWorld1
+  m_Name: InRealWorldInverseStencil
   m_EditorClassIdentifier: 
   m_Active: 1
   settings:
-    passTag: StencilToThisWorld1
+    passTag: InRealWorldInverseStencil
     Event: 300
     filterSettings:
       RenderQueueType: 0
       LayerMask:
         serializedVersion: 2
-        m_Bits: 134217792
+        m_Bits: 134217856
       PassNames: []
     overrideMaterial: {fileID: 0}
     overrideMaterialPassIndex: 0
@@ -175,11 +175,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
-  m_Name: StencilToOtherWorld1
+  m_Name: InRealWorldPortalStencil
   m_EditorClassIdentifier: 
   m_Active: 1
   settings:
-    passTag: StencilToOtherWorld1
+    passTag: InRealWorldPortalStencil
     Event: 300
     filterSettings:
       RenderQueueType: 0
@@ -256,17 +256,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
-  m_Name: StencilToThisWorld2
+  m_Name: InVirtualWorldInverseStencil
   m_EditorClassIdentifier: 
   m_Active: 0
   settings:
-    passTag: StencilToThisWorld2
+    passTag: InVirtualWorldInverseStencil
     Event: 300
     filterSettings:
       RenderQueueType: 0
       LayerMask:
         serializedVersion: 2
-        m_Bits: 268435584
+        m_Bits: 268435520
       PassNames: []
     overrideMaterial: {fileID: 0}
     overrideMaterialPassIndex: 0

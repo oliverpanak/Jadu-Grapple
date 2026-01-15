@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6875490173053590813}
   - component: {fileID: 4719697340578916628}
   - component: {fileID: 3489387522976417886}
+  - component: {fileID: 9041342827198644052}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -155,3 +156,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PortalObject
   isTransferring: 0
   proxyInstance: {fileID: 0}
+--- !u!114 &9041342827198644052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 613292779795284151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23c324c7caa86405d8e49018a7393886, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
+  rb: {fileID: 0}
+  isHeld: 0

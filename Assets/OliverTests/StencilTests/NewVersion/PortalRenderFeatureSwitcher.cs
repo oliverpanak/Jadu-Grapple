@@ -15,6 +15,7 @@ public class PortalRenderFeatureSwitcher : MonoBehaviour
     [Header("References")]
     public Transform portalTransform;
     public Transform playerCamera;
+    public PlayerWorldState playerWorldState;
 
     [Header("Look Test")]
     [Range(0f, 1f)]
@@ -124,6 +125,11 @@ public class PortalRenderFeatureSwitcher : MonoBehaviour
 
         InVirtualWorldPortalStencil.SetActive(!inRealWorld);
         InVirtualWorldInverseStencil.SetActive(!inRealWorld);
+        
+        playerWorldState.CurrentWorld =
+            currentWorld == PlayerWorld.InRealWorld
+                ? PlayerWorldState.PlayerWorld.InRealWorld
+                : PlayerWorldState.PlayerWorld.InVirtualWorld;
     }
 
     // =========================

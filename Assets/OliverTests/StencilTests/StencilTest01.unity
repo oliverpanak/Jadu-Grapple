@@ -1350,6 +1350,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2512387469002778309, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
       insertIndex: -1
       addedObject: {fileID: 314569917}
+    - targetCorrespondingSourceObject: {fileID: 2512387469002778309, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 314569925}
   m_SourcePrefab: {fileID: 100100000, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
 --- !u!1 &314569916 stripped
 GameObject:
@@ -1405,6 +1408,28 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2512387469002778308, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
   m_PrefabInstance: {fileID: 314569915}
   m_PrefabAsset: {fileID: 0}
+--- !u!20 &314569920 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 2512387469002778331, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
+  m_PrefabInstance: {fileID: 314569915}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &314569925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314569916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67a6a7172aef243fabd305f874be6541, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectInteractionController
+  playerCamera: {fileID: 314569920}
+  playerWorldState: {fileID: 607351551}
+  grabDistance: 1
+  throwForce: 5
+  maxRayDistance: 5
 --- !u!1001 &327086162
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2291,6 +2316,8 @@ GameObject:
   - component: {fileID: 607351548}
   - component: {fileID: 607351547}
   - component: {fileID: 607351549}
+  - component: {fileID: 607351551}
+  - component: {fileID: 607351550}
   m_Layer: 0
   m_Name: Window
   m_TagString: Portal
@@ -2371,6 +2398,7 @@ MonoBehaviour:
   InVirtualWorldInverseStencil: {fileID: -2313707890947376839, guid: 463a3fa64599741de8e5c43b7a9b99a2, type: 2}
   portalTransform: {fileID: 607351545}
   playerCamera: {fileID: 314569919}
+  playerWorldState: {fileID: 0}
   lookDotThreshold: 0.4
   currentWorld: 0
 --- !u!114 &607351549
@@ -2385,6 +2413,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66f2ab82140f745dfa9dc95c410bc8d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PortalObjectTransfer
+--- !u!114 &607351550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 607351544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67a6a7172aef243fabd305f874be6541, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectInteractionController
+  playerCamera: {fileID: 314569920}
+  playerWorldState: {fileID: 607351551}
+  grabDistance: 1
+  throwForce: 5
+  maxRayDistance: 5
+--- !u!114 &607351551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 607351544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8369d82aeb07545259f454f1e3329718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerWorldState
+  CurrentWorld: 0
 --- !u!1001 &626151230
 PrefabInstance:
   m_ObjectHideFlags: 0

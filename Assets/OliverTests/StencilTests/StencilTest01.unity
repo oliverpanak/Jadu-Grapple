@@ -2377,7 +2377,6 @@ GameObject:
   - component: {fileID: 607351547}
   - component: {fileID: 607351549}
   - component: {fileID: 607351551}
-  - component: {fileID: 607351550}
   m_Layer: 0
   m_Name: Window
   m_TagString: Portal
@@ -2473,23 +2472,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66f2ab82140f745dfa9dc95c410bc8d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PortalObjectTransfer
---- !u!114 &607351550
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 607351544}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67a6a7172aef243fabd305f874be6541, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectInteractionController
-  playerCamera: {fileID: 314569920}
-  playerWorldState: {fileID: 607351551}
-  grabDistance: 1
-  throwForce: 5
-  maxRayDistance: 5
 --- !u!114 &607351551
 MonoBehaviour:
   m_ObjectHideFlags: 0

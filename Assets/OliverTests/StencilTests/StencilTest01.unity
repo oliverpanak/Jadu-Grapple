@@ -353,7 +353,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &79749264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1365,11 +1365,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2512387470528047738, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.776
+      value: 0.384
       objectReference: {fileID: 0}
     - target: {fileID: 2512387470528047738, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.556
+      value: -1.78
       objectReference: {fileID: 0}
     - target: {fileID: 2512387470528047738, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1407,12 +1407,12 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1221796774}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2512387470528047719, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 314569932}
     - targetCorrespondingSourceObject: {fileID: 2512387469002778309, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
       insertIndex: -1
       addedObject: {fileID: 314569917}
-    - targetCorrespondingSourceObject: {fileID: 2512387469002778309, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 314569925}
   m_SourcePrefab: {fileID: 100100000, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
 --- !u!1 &314569916 stripped
 GameObject:
@@ -1463,6 +1463,11 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &314569918 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2512387470528047719, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
+  m_PrefabInstance: {fileID: 314569915}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &314569919 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2512387469002778308, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
@@ -1473,23 +1478,22 @@ Camera:
   m_CorrespondingSourceObject: {fileID: 2512387469002778331, guid: 48cb3fb68c91eb94999fd99957eb0cae, type: 3}
   m_PrefabInstance: {fileID: 314569915}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &314569925
+--- !u!114 &314569932
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 314569916}
+  m_GameObject: {fileID: 314569918}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67a6a7172aef243fabd305f874be6541, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectInteractionController
   playerCamera: {fileID: 314569920}
-  playerWorldState: {fileID: 607351551}
-  grabDistance: 1
-  throwForce: 5
-  maxRayDistance: 5
+  grabDistance: 2.5
+  holdDistance: 1
+  throwForceMultiplier: 1
 --- !u!1001 &327086162
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2301,6 +2305,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 3864988792527822031, guid: ebd7292e888c84f05924605e51048072, type: 3}
+      propertyPath: objectWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3900644259840735266, guid: ebd7292e888c84f05924605e51048072, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.367
@@ -2457,7 +2465,6 @@ MonoBehaviour:
   InVirtualWorldInverseStencil: {fileID: -2313707890947376839, guid: 463a3fa64599741de8e5c43b7a9b99a2, type: 2}
   portalTransform: {fileID: 607351545}
   playerCamera: {fileID: 314569919}
-  playerWorldState: {fileID: 607351551}
   lookDotThreshold: 0.4
   currentWorld: 0
 --- !u!114 &607351549
@@ -2605,6 +2612,10 @@ PrefabInstance:
     - target: {fileID: 613292779795284151, guid: ebd7292e888c84f05924605e51048072, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864988792527822031, guid: ebd7292e888c84f05924605e51048072, type: 3}
+      propertyPath: objectWorld
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3900644259840735266, guid: ebd7292e888c84f05924605e51048072, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4651,6 +4662,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 3864988792527822031, guid: ebd7292e888c84f05924605e51048072, type: 3}
+      propertyPath: objectWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3900644259840735266, guid: ebd7292e888c84f05924605e51048072, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.995
@@ -4763,6 +4778,10 @@ PrefabInstance:
     - target: {fileID: 613292779795284151, guid: ebd7292e888c84f05924605e51048072, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864988792527822031, guid: ebd7292e888c84f05924605e51048072, type: 3}
+      propertyPath: objectWorld
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3900644259840735266, guid: ebd7292e888c84f05924605e51048072, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5316,6 +5335,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 3864988792527822031, guid: ebd7292e888c84f05924605e51048072, type: 3}
+      propertyPath: objectWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3900644259840735266, guid: ebd7292e888c84f05924605e51048072, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.06
@@ -5507,6 +5530,10 @@ PrefabInstance:
     - target: {fileID: 613292779795284151, guid: ebd7292e888c84f05924605e51048072, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864988792527822031, guid: ebd7292e888c84f05924605e51048072, type: 3}
+      propertyPath: objectWorld
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3900644259840735266, guid: ebd7292e888c84f05924605e51048072, type: 3}
       propertyPath: m_LocalPosition.x

@@ -353,7 +353,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &79749264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,7 +390,7 @@ Transform:
   m_GameObject: {fileID: 79749263}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.68005127, y: 0.14386627, z: 1.1741385}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2457,7 +2457,7 @@ MonoBehaviour:
   InVirtualWorldInverseStencil: {fileID: -2313707890947376839, guid: 463a3fa64599741de8e5c43b7a9b99a2, type: 2}
   portalTransform: {fileID: 607351545}
   playerCamera: {fileID: 314569919}
-  playerWorldState: {fileID: 0}
+  playerWorldState: {fileID: 607351551}
   lookDotThreshold: 0.4
   currentWorld: 0
 --- !u!114 &607351549
